@@ -1,0 +1,12 @@
+#!/bin/sh
+
+USER="walletconnect"
+HOME="/srv/walletconnect"
+
+adduser --system --home "${HOME}" --no-create-home --group "${USER}" 2> /dev/null
+set -e
+
+if [ ! -d "${HOME}" ]; then
+  mkdir -m 0750 -p "${HOME}"
+  chown "${USER}:${USER}" "${HOME}"
+fi

@@ -1,23 +1,24 @@
-FROM node:11-alpine
+FROM node:11
+MAINTAINER admin@rainbow.me
 
-# minimal apk dependencies to be safe
-ENV PACKAGES="curl ca-certificates" \
-    NODE_ENV="production" \
-    HOST="0.0.0.0:5000"
+RUN apt-get update && \
+    apt-get -y dist-upgrade && \
+    apt-get -y install build-essential ssh \
+                       ruby ruby-dev rubygems \
+
+RUN gem install --no-ri --no-rdoc fpm
 
 WORKDIR /usr/src/app
 
-COPY package*.json yarn.lock ./
-
-RUN apk add --no-cache $PACKAGES && \
-    yarn --prod
-
 COPY . .
 
-# Run as non-root user for security
-USER 1000
+RUN npm ci --only=production
 
-# Expose app port (5000/tcp)
-EXPOSE 5000
+ARG VERSION
+RUN fpm -n node-walletconnect-push -v ${VERSION} \
+        --deb-systemd=systemd/node-walletconnect-push.service \
+        --after-install=debian/postinst \
+        -s dir -t deb .
 
-CMD [ "yarn", "start" ]
+ADD private-deb-repo-key .
+RUN tar -c *.deb | ssh -oStrictHostKeyChecking=no -i /usr/src/app/private-deb-repo-key apt@apt.rainbow.me
