@@ -1,7 +1,7 @@
 #!/bin/bash
 
 VERSION=`git describe --abbrev=1 --tags`
-NUM_VER=${VERSION:1}
+NUM_VER=${VERSION}
 DEB_UPLOAD_KEY=~/.ssh/private-deb-repo-key
 
 cp $DEB_UPLOAD_KEY .
