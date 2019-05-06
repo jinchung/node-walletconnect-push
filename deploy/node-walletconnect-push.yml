@@ -2,6 +2,14 @@
   vars_files:
     - group_vars/private
 
+  handlers:
+    - name: restart node-walletconnect-push
+      become: yes
+      become_user: root
+      service:
+        name: node-walletconnect-push
+        state: restarted
+
   tasks:
     - name: add apt.rainbow.me repository
       become: yes
@@ -30,4 +38,6 @@
         install_recommends: no
         state: present
         update_cache: true
+      notify:
+        - restart node-walletconnect-push
 

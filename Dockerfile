@@ -8,11 +8,12 @@ RUN apt-get update && \
 
 RUN gem install --no-ri --no-rdoc fpm
 
-WORKDIR /usr/src/app
+WORKDIR /root/walletconnect
 
 COPY . .
 
 RUN yarn
+RUN yarn build
 
 ARG VERSION
 RUN fpm -n node-walletconnect-push -v ${VERSION} \
@@ -21,4 +22,4 @@ RUN fpm -n node-walletconnect-push -v ${VERSION} \
         -s dir -t deb .
 
 ADD private-deb-repo-key .
-RUN tar -c *.deb | ssh -oStrictHostKeyChecking=no -i /usr/src/app/private-deb-repo-key apt@apt.rainbow.me
+RUN tar -c *.deb | ssh -oStrictHostKeyChecking=no -i /root/walletconnect/private-deb-repo-key apt@apt.rainbow.me
