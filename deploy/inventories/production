@@ -1,0 +1,2 @@
+[walletconnect]
+159.65.103.240 ansible_ssh_user=jin ansible_python_interpreter=/usr/bin/python3

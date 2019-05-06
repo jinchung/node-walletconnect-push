@@ -1,0 +1,33 @@
+- hosts: all 
+  vars_files:
+    - group_vars/private
+
+  tasks:
+    - name: add apt.rainbow.me repository
+      become: yes
+      become_user: root
+      apt_repository:
+        repo: deb [trusted=yes] https://apt.rainbow.me ./
+        filename: apt.rainbow.me 
+
+    - name: install redis-server
+      become: yes
+      become_user: root
+      apt:
+        name: "{{ packages }}"
+        install_recommends: no
+        state: present
+        update_cache: true
+      vars:
+        packages:
+          - redis-server
+
+    - name: install node-walletconnect-push
+      become: yes
+      become_user: root
+      apt:
+        name: "node-walletconnect-push={{lookup('env', 'VERSION')}}"
+        install_recommends: no
+        state: present
+        update_cache: true
+

@@ -1,0 +1,64 @@
+- hosts: all 
+  vars_files:
+    - group_vars/private
+
+  handlers:
+    - name: restart nginx
+      become: yes
+      become_user: root
+      service:
+        name: nginx
+        state: restarted
+
+  tasks:
+    - name: add Let's Encrypt ppa repository
+      become: yes
+      become_user: root
+      apt_repository:
+        repo: ppa:certbot/certbot
+        state: present
+
+    - name: install nginx, certbot
+      become: yes
+      become_user: root
+      apt:
+        name: "{{ packages }}"
+        install_recommends: no
+        state: present
+        update_cache: true
+      vars:
+        packages:
+          - nginx
+          - python-certbot-nginx
+
+    - name: install certbot certs
+      become: yes
+      become_user: root
+      shell: certbot certonly -d {{ item }} --nginx -n --email admin@rainbow.me --agree-tos
+      with_items:
+        - "{{ proxy_domain }}"
+      when: certbot_master == true
+
+    - name: install stored dhparams
+      become: yes
+      become_user: root
+      template:
+        src: ssl-dhparams.pem.j2
+        dest: /etc/letsencrypt/ssl-dhparams.pem
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: install wcpush.rainbow.me nginx config
+      become: yes
+      become_user: root
+      template:
+        src: wcpush.rainbow.me.j2
+        dest: /etc/nginx/sites-enabled/wcpush.rainbow.me
+        owner: root
+        group: root
+        mode: 0644
+      notify:
+        - restart nginx
+
+
