@@ -4,7 +4,7 @@ MAINTAINER admin@rainbow.me
 RUN apt-get update && \
     apt-get -y dist-upgrade && \
     apt-get -y install build-essential ssh \
-                       ruby ruby-dev rubygems \
+                       ruby ruby-dev rubygems
 
 RUN gem install --no-ri --no-rdoc fpm
 
@@ -12,7 +12,7 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm ci --only=production
+RUN yarn
 
 ARG VERSION
 RUN fpm -n node-walletconnect-push -v ${VERSION} \
